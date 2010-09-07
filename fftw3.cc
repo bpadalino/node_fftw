@@ -38,7 +38,6 @@ class fftw3 : ObjectWrap {
             sft->SetClassName(String::NewSymbol("fftw3")) ;
             
             NODE_SET_PROTOTYPE_METHOD(sft, "execute", execute) ;
-            //NODE_SET_PROTOTYPE_METHOD(sft, "twice", twice) ;
             
             target->Set(String::NewSymbol("plan"), sft->GetFunction()) ;
             
@@ -50,13 +49,11 @@ class fftw3 : ObjectWrap {
             in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*length) ;
             out = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*length) ;
             plan = fftw_plan_dft_1d(length, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
-            // printf( "length: %i in: %p-%p out: %p-%p\n", length, in, &in[length-1][1], out, &out[length-1][1] ) ;
         }
         
         // Any extra deletes
         ~fftw3() {
             fftw_destroy_plan(plan) ;
-            // fprintf( stderr, "freeing done: %i length: %i in: %p-%p out:%p-%p\n", done, length, in, &in[length-1][1], out, &out[length-1][1] ) ;
             fftw_free(in) ;
             fftw_free(out) ;
         }
