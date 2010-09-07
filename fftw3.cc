@@ -17,7 +17,7 @@ class fftw3 : ObjectWrap {
     
     private:
         int length ;
-        unsigned int in_p, out_p ;
+        int done ;
         fftw_plan plan ;
         fftw_complex *in ;
         fftw_complex *out ;
@@ -50,13 +50,13 @@ class fftw3 : ObjectWrap {
             in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*length) ;
             out = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*length) ;
             plan = fftw_plan_dft_1d(length, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
-            printf( "length: %i in: %p-%p out: %p-%p\n", length, in, &in[length-1][1], out, &out[length-1][1] ) ;
+            // printf( "length: %i in: %p-%p out: %p-%p\n", length, in, &in[length-1][1], out, &out[length-1][1] ) ;
         }
         
         // Any extra deletes
         ~fftw3() {
             fftw_destroy_plan(plan) ;
-            fprintf( stderr, "freeing length: %i in: %p-%p out:%p-%p\n", length, in, &in[length-1][1], out, &out[length-1][1] ) ;
+            // fprintf( stderr, "freeing done: %i length: %i in: %p-%p out:%p-%p\n", done, length, in, &in[length-1][1], out, &out[length-1][1] ) ;
             fftw_free(in) ;
             fftw_free(out) ;
         }
@@ -132,10 +132,6 @@ class fftw3 : ObjectWrap {
         static int EIO_callback( eio_req *req ) {
             HandleScope scope ;
             baton_t *baton = static_cast<baton_t *>(req->data) ;
-            ev_unref(EV_DEFAULT_UC) ;
-            
-            // Decrement reference count for object
-            baton->design->Unref() ;
             
             // Create the return arguments
             Local<Value> argv[1] ;
@@ -146,6 +142,11 @@ class fftw3 : ObjectWrap {
                 result->Set(2*i, Number::New(baton->design->out[i][0]) ) ;
                 result->Set(2*i+1, Number::New(baton->design->out[i][1]) ) ;
             }
+            
+            // We're now done with the object
+            // Decrement reference count for object
+            ev_unref(EV_DEFAULT_UC) ;
+            baton->design->Unref() ;
             
             TryCatch try_catch ;
             
@@ -163,9 +164,7 @@ class fftw3 : ObjectWrap {
             baton->cb.Dispose() ;
             
             // Get rid of the baton since we're done with the race
-            fprintf( stderr, "Deleting baton(%i@%p)...", baton->design->length, baton->design->in ) ;
             delete baton ;
-            fprintf( stderr, "now!\n" ) ;
             
             // Done!
             return 0 ;
