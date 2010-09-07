@@ -17,7 +17,6 @@ class fftw3 : ObjectWrap {
     
     private:
         int length ;
-        int done ;
         fftw_plan plan ;
         fftw_complex *in ;
         fftw_complex *out ;
@@ -28,17 +27,26 @@ class fftw3 : ObjectWrap {
         static Persistent<FunctionTemplate> sft ;
         
         // Initialization
-        static void Init(Handle<Object> target) {
+        static void Initialize(Handle<Object> target) {
             HandleScope scope ;
             
+            // The New passed in here refers to the static Handle<Value> New() below
             Local<FunctionTemplate> t = FunctionTemplate::New(New) ;
             
+            // I am not 100% positive what this does just yet
             sft = Persistent<FunctionTemplate>::New(t) ;
             sft->InstanceTemplate()->SetInternalFieldCount(1) ;
+            
+            // Set the class name for the function table lookups
             sft->SetClassName(String::NewSymbol("fftw3")) ;
             
+            // Create a prototype method that I'll be able to call and attach it to
+            // the static Handle<Value> execute() method, NOT the fftw::execute() method
             NODE_SET_PROTOTYPE_METHOD(sft, "execute", execute) ;
             
+            // Export a symbol that we can use to new() in Javascript, and associate
+            // the action to take with static Handle<Value> New(), which will create
+            // a new object for us
             target->Set(String::NewSymbol("plan"), sft->GetFunction()) ;
             
         }
@@ -58,6 +66,7 @@ class fftw3 : ObjectWrap {
             fftw_free(out) ;
         }
         
+        // Execute the plan!
         void execute() {
             fftw_execute(plan) ;
         }
@@ -173,7 +182,7 @@ Persistent<FunctionTemplate> fftw3::sft;
 extern "C" {
     void init (Handle<Object> target) 
     {
-        fftw3::Init(target) ;
+        fftw3::Initialize(target) ;
     }
     
     NODE_MODULE( fftw3, init ) ;
