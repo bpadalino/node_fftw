@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+node-waf configure build
+#node test.js
