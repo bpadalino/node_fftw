@@ -163,7 +163,9 @@ class fftw3 : ObjectWrap {
             baton->cb.Dispose() ;
             
             // Get rid of the baton since we're done with the race
+            fprintf( stderr, "Deleting baton(%i@%p)...", baton->design->length, baton->design->in ) ;
             delete baton ;
+            fprintf( stderr, "now!\n" ) ;
             
             // Done!
             return 0 ;

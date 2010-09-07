@@ -2,7 +2,7 @@ var sys = require('sys') ;
     fftw3 = require('./build/default/fftw3') ;
 
 // Setup the bounds for the iterations
-const ITERS = 2, MIN = 4, MAX = 20 ;
+const ITERS = 3, MIN = 4, MAX = 20 ;
 
 // Iterate through some FFTs now
 var i, x, j, tone, design ;
