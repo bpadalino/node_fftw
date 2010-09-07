@@ -17,6 +17,7 @@ class fftw3 : ObjectWrap {
     
     private:
         int length ;
+        unsigned int in_p, out_p ;
         fftw_plan plan ;
         fftw_complex *in ;
         fftw_complex *out ;
@@ -49,11 +50,13 @@ class fftw3 : ObjectWrap {
             in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*length) ;
             out = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*length) ;
             plan = fftw_plan_dft_1d(length, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
+            printf( "length: %i in: %p-%p out: %p-%p\n", length, in, &in[length-1][1], out, &out[length-1][1] ) ;
         }
         
         // Any extra deletes
         ~fftw3() {
             fftw_destroy_plan(plan) ;
+            fprintf( stderr, "freeing length: %i in: %p-%p out:%p-%p\n", length, in, &in[length-1][1], out, &out[length-1][1] ) ;
             fftw_free(in) ;
             fftw_free(out) ;
         }
@@ -94,9 +97,9 @@ class fftw3 : ObjectWrap {
                 return ThrowException(Exception::Error(String::New("Array length not equal to design length"))) ;
             } else {
                 // Copy the array to the input
-                for(int i=0; i< array->Length() ; i+=2 ) {
-                    design->in[i][0] = array->Get(i)->NumberValue() ;
-                    design->in[i][1] = array->Get(i+1)->NumberValue() ;
+                for(int i=0; i< design->length ; i+=1 ) {
+                    design->in[i][0] = array->Get(2*i)->NumberValue() ;
+                    design->in[i][1] = array->Get(2*i+1)->NumberValue() ;
                 }
             }
             
@@ -136,19 +139,17 @@ class fftw3 : ObjectWrap {
             
             // Create the return arguments
             Local<Value> argv[1] ;
-            argv[0] = Array::New(baton->design->length*2) ;
-            
-            // Re-cast it to an array for easy access
-            Local<Array> oot = Local<Array>::Cast(argv[0]) ;
-            //oot->SetIndexedPropertiesToExternalArrayData((void *)baton->design->out, kExternalFloatArray,oot->Length() ) ;
+            Local<Array> result = Array::New(baton->design->length*2) ;
             
             // Copy the output of the design into the new array
-            for(int i = 0 ; i < baton->design->length ; i+=2 ) {
-                oot->Set(i, Number::New(baton->design->out[i][0]) ) ;
-                oot->Set(i+1, Number::New(baton->design->out[i][1]) ) ;
+            for(int i = 0 ; i < baton->design->length ; i+=1 ) {
+                result->Set(2*i, Number::New(baton->design->out[i][0]) ) ;
+                result->Set(2*i+1, Number::New(baton->design->out[i][1]) ) ;
             }
             
             TryCatch try_catch ;
+            
+            argv[0] = result ;
             
             // Call the callback
             baton->cb->Call(Context::GetCurrent()->Global(), 1, argv ) ;
