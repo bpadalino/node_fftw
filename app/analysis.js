@@ -37,8 +37,6 @@ design.execute( complex.flatten(tone), function(x) {
 
 analysis.post( '/', function(req, res) {
     if( req.body.dang ) {
-        sys.puts( 'dang: ' + req.body.dang ) ;
-        sys.puts( 'points: ' + req.body.points ) ;
         createTone( parseFloat(req.body.dang), parseFloat(req.body.points) ) ;
         design = new fftw3.plan(parseFloat(req.body.points)) ;
         design.execute(complex.flatten(tone), function(x) {
