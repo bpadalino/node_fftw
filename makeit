@@ -1,3 +1,2 @@
 #!/usr/bin/env bash
-node-waf configure build
-#node test.js
+cd ./lib/fftw3 && node-waf configure build
