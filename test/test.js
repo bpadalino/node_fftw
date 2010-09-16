@@ -6,7 +6,7 @@ var sys = require('sys'),
     complex = require('complex') ;
 
 // Setup the bounds for the iterations
-const ITERS = 1, MIN = 22, MAX = 23 ;
+const ITERS = 1, MIN = 8, MAX = 9 ;
 
 // Iterate through some FFTs now
 var i, x, j, tone, design ;
@@ -20,16 +20,16 @@ for(j=0;j<ITERS;j++) {
         for(x=0;x<Math.pow(2,i-1);x++) {
             tone.push( complex.fromPolar(ang) ) ;
             ang += dang ;
-            //sys.puts( tone[tone.length-1] ) ;
         }
+        sys.puts( tone ) ;
         
-        // // Perform the FFT
-        // fftplan = new fftw3.plan(Math.pow(2,i-1)) ;
-        // fftplan.execute(complex.flatten(tone), function(x) {
-        //     var result = complex.inflate(x) ;
-        //     sys.puts( "FFT power result" ) ;
-        //     //sys.puts( sys.inspect(complex.dB(result)) ) ;
-        // } ) ;
+        // Perform the FFT
+        fftplan = new fftw3.plan(Math.pow(2,i-1)) ;
+        fftplan.execute(complex.flatten(tone), function(x) {
+            var result = complex.inflate(x) ;
+            sys.puts( "FFT power result" ) ;
+            sys.puts( sys.inspect(complex.dB(result)) ) ;
+        } ) ;
         
     }
 }

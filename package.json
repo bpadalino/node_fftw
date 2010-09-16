@@ -1,8 +1,0 @@
-{ 
-    "name"          :   "fftw",
-    "version"       :   "0.0.1",
-    "description"   :   "Binding fftw3 to node",
-    "author"        :   "Brian Padalino",
-    "main"          :   "./fftw3",
-    "scripts"       :   { "install": "node-waf configure build" }
-}

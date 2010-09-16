@@ -1,0 +1,11 @@
+#content
+  form(method='post')
+    label(for='dang') dang: 
+      input(type='text', name='dang', id='dang') 
+      lable(for='points') points: 
+      input(type='text', name='points', id='points')
+      input(type='submit', value='Submit &rarr;')
+  ul
+    - fftpoints.forEach(function(point) {
+      li=point
+    - })
