@@ -5,6 +5,7 @@ require.paths.unshift(__dirname + '/deps/express') ;
 var sys = require('sys'),
     complex = require('complex'),
     fftw3 = require('fftw3'),
+    exec = require('child_process').exec,
     express = require('express') ;
 
 // Setup the server as well as some extras
@@ -60,3 +61,10 @@ analysis.get( '/', function(req, res) {
 
 analysis.listen(3030) ;
 console.log( "analysis running at http://localhost:3030") ;
+
+// Automatically start up a browser instance to the app
+var child = exec('open http://localhost:3030/', function(error) {
+    if( error != null ) {
+        console.log( 'exec error: ' + error ) ;
+    }
+}) ;
